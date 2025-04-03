@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 
-interface Option {
+export interface Option {
   value: string;
   label: string;
 }
@@ -77,7 +77,7 @@ export function SelectionFilter({
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[200px]" align="start">
+        <PopoverContent className="p-0 w-[250px]" align="start">
           <Command>
             <CommandInput placeholder={`Search ${title.toLowerCase()}...`} />
             <CommandEmpty>No {title.toLowerCase()} found.</CommandEmpty>
