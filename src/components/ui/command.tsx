@@ -86,8 +86,7 @@ const CommandGroup = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group>
 >(({ className, children, ...props }, ref) => {
   // Ensure children is not undefined or null
-  const hasChildren = React.Children.count(children) > 0;
-  const safeChildren = hasChildren 
+  const safeChildren = React.Children.count(children) > 0
     ? children 
     : <div className="py-6 text-center text-sm">No items available</div>;
     

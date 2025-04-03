@@ -40,8 +40,11 @@ export function SelectionFilter({
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  // Make sure options is always an array
-  const safeOptions = Array.isArray(options) ? options : [];
+  // Make sure options is always an array of valid Option objects
+  const safeOptions = Array.isArray(options) 
+    ? options.filter(opt => opt && typeof opt === 'object' && 'value' in opt && 'label' in opt) 
+    : [];
+    
   // Make sure selected is always an array 
   const safeSelected = Array.isArray(selected) ? selected : [];
 
@@ -130,9 +133,9 @@ export function SelectionFilter({
               <CommandEmpty>No {title.toLowerCase()} found.</CommandEmpty>
               {safeOptions && safeOptions.length > 0 ? (
                 <CommandGroup className="max-h-64 overflow-auto">
-                  {safeOptions.map((option) => option && (
+                  {safeOptions.map((option, index) => option && (
                     <CommandItem
-                      key={option.value}
+                      key={option.value || `option-${index}`}
                       value={option.value}
                       onSelect={() => handleSelect(option.value)}
                     >
