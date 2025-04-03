@@ -41,25 +41,44 @@ export function SelectionFilter({
 
   // Make sure options is always an array
   const safeOptions = Array.isArray(options) ? options : [];
+  // Make sure selected is always an array 
+  const safeSelected = Array.isArray(selected) ? selected : [];
 
   const handleSelect = (value: string) => {
-    if (selected.includes(value)) {
-      onSelectionChange(selected.filter((item) => item !== value));
+    if (safeSelected.includes(value)) {
+      onSelectionChange(safeSelected.filter((item) => item !== value));
     } else {
-      onSelectionChange([...selected, value]);
+      onSelectionChange([...safeSelected, value]);
     }
   };
 
   const handleRemove = (value: string) => {
-    onSelectionChange(selected.filter((item) => item !== value));
+    onSelectionChange(safeSelected.filter((item) => item !== value));
   };
 
   const getSelectedLabels = () => {
-    return selected.map((value) => {
+    return safeSelected.map((value) => {
       const option = safeOptions.find((opt) => opt.value === value);
       return option ? option.label : value;
     });
   };
+
+  // Fallback for empty options to prevent cmdk issues
+  if (safeOptions.length === 0) {
+    return (
+      <div className={cn("flex flex-col", className)}>
+        <Button
+          variant="outline"
+          className="justify-between min-h-10"
+          disabled
+        >
+          <span className="mr-2 truncate">{title}</span>
+          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+        <div className="text-sm text-muted-foreground mt-2">No options available</div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex flex-col", className)}>
@@ -72,9 +91,9 @@ export function SelectionFilter({
             className="justify-between min-h-10"
           >
             <span className="mr-2 truncate">{title}</span>
-            {selected.length > 0 && (
+            {safeSelected.length > 0 && (
               <Badge variant="outline" className="mr-2">
-                {selected.length}
+                {safeSelected.length}
               </Badge>
             )}
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
@@ -94,7 +113,7 @@ export function SelectionFilter({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      selected.includes(option.value)
+                      safeSelected.includes(option.value)
                         ? "opacity-100"
                         : "opacity-0"
                     )}
@@ -107,14 +126,14 @@ export function SelectionFilter({
         </PopoverContent>
       </Popover>
 
-      {selected.length > 0 && (
+      {safeSelected.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-2">
           {getSelectedLabels().map((label, index) => (
             <Badge
               key={index}
               variant="secondary"
               className="cursor-pointer"
-              onClick={() => handleRemove(selected[index])}
+              onClick={() => handleRemove(safeSelected[index])}
             >
               {label}
               <span className="ml-1 text-xs">&times;</span>
