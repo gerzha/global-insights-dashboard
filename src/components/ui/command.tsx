@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { type DialogProps } from "@radix-ui/react-dialog"
 import { Command as CommandPrimitive } from "cmdk"
@@ -84,21 +85,15 @@ const CommandGroup = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Group>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group>
 >(({ className, children, ...props }, ref) => {
-  // Create a fallback element when no children are provided
-  const fallback = <div className="py-6 text-center text-sm">No items available</div>;
-  
-  // Safely check if children exist and have items
-  let safeChildren = null;
-  
-  if (children) {
-    // If children is provided, use it
-    const childCount = React.Children.count(children);
-    safeChildren = childCount > 0 ? children : fallback;
-  } else {
-    // If children is undefined or null, use fallback
-    safeChildren = fallback;
-  }
-  
+  // Ensure children is always a valid React node before passing to CommandPrimitive.Group
+  const safeChildren = React.useMemo(() => {
+    // If children is null, undefined, or empty array, show "No items available"
+    if (!children || (Array.isArray(children) && children.length === 0)) {
+      return <div className="py-6 text-center text-sm">No items available</div>;
+    }
+    return children;
+  }, [children]);
+
   return (
     <CommandPrimitive.Group
       ref={ref}
