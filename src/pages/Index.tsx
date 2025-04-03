@@ -6,6 +6,7 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { SelectionFilter, Option } from "@/components/dashboard/SelectionFilter";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { TopItemsList } from "@/components/dashboard/TopItemsList";
+import { FilteredStats } from "@/components/dashboard/FilteredStats";
 import { Users, DollarSign, TrendingUp, Globe } from "lucide-react";
 import { format } from "date-fns";
 import { 
@@ -17,6 +18,8 @@ import {
 import { 
   calculateGlobalStats, 
   calculateProductStats,
+  calculateCountryStats,
+  calculateStoreStats,
   getDefaultDateRange, 
   formatCurrency, 
   getTierText 
@@ -86,6 +89,26 @@ const Dashboard = () => {
     );
     setGlobalStats(stats);
   }, [startDate, endDate, selectedCountries, selectedStores]);
+
+  // Update country stats when selected countries or date range changes
+  useEffect(() => {
+    const countryStats = calculateCountryStats(
+      mockTransactions || [],
+      [startDate, endDate],
+      selectedCountries
+    );
+    setCountriesStats(countryStats);
+  }, [selectedCountries, startDate, endDate]);
+
+  // Update store stats when selected stores or date range changes
+  useEffect(() => {
+    const storeStats = calculateStoreStats(
+      mockTransactions || [],
+      [startDate, endDate],
+      selectedStores
+    );
+    setStoresStats(storeStats);
+  }, [selectedStores, startDate, endDate]);
 
   // Update revenue data when selected products, countries, stores, or date range changes
   useEffect(() => {
@@ -216,6 +239,20 @@ const Dashboard = () => {
                   )}
                 </div>
               </div>
+              
+              {/* Country-specific Stats Section */}
+              <FilteredStats
+                title="Global Stats for Selected Countries"
+                stats={countriesStats}
+                className="mb-6"
+              />
+              
+              {/* Store-specific Stats Section */}
+              <FilteredStats
+                title="Global Stats for Selected Stores"
+                stats={storesStats}
+                className="mb-6"
+              />
               
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
                 <RevenueChart 

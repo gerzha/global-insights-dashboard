@@ -1,4 +1,3 @@
-
 import { Transaction, Country, Store, Product } from "@/data/mockData";
 import { format, parseISO, isAfter, isBefore, subDays } from "date-fns";
 
@@ -81,6 +80,78 @@ export function calculateGlobalStats(
     avgAmount,
     topCountriesByAmount,
     topCountriesByTransactions
+  };
+}
+
+export function calculateCountryStats(
+  transactions: Transaction[],
+  dateRange: [Date, Date],
+  selectedCountries: string[] = []
+) {
+  if (!selectedCountries.length) return null;
+
+  // Filter transactions by date range
+  let filteredTransactions = transactions.filter((transaction) => {
+    const transactionDate = parseISO(transaction.date);
+    return (
+      isAfter(transactionDate, dateRange[0]) &&
+      isBefore(transactionDate, dateRange[1])
+    );
+  });
+
+  // Filter by selected countries
+  filteredTransactions = filteredTransactions.filter((transaction) =>
+    selectedCountries.includes(transaction.countryCode)
+  );
+
+  // Calculate total metrics
+  const totalTransactions = filteredTransactions.length;
+  const totalAmount = filteredTransactions.reduce(
+    (sum, transaction) => sum + transaction.amount,
+    0
+  );
+  const avgAmount = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
+
+  return {
+    totalTransactions,
+    totalAmount,
+    avgAmount
+  };
+}
+
+export function calculateStoreStats(
+  transactions: Transaction[],
+  dateRange: [Date, Date],
+  selectedStores: string[] = []
+) {
+  if (!selectedStores.length) return null;
+
+  // Filter transactions by date range
+  let filteredTransactions = transactions.filter((transaction) => {
+    const transactionDate = parseISO(transaction.date);
+    return (
+      isAfter(transactionDate, dateRange[0]) &&
+      isBefore(transactionDate, dateRange[1])
+    );
+  });
+
+  // Filter by selected stores
+  filteredTransactions = filteredTransactions.filter((transaction) =>
+    selectedStores.includes(transaction.storeId)
+  );
+
+  // Calculate total metrics
+  const totalTransactions = filteredTransactions.length;
+  const totalAmount = filteredTransactions.reduce(
+    (sum, transaction) => sum + transaction.amount,
+    0
+  );
+  const avgAmount = totalTransactions > 0 ? totalAmount / totalTransactions : 0;
+
+  return {
+    totalTransactions,
+    totalAmount,
+    avgAmount
   };
 }
 
