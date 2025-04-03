@@ -85,11 +85,21 @@ const CommandGroup = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Group>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group>
 >(({ className, children, ...props }, ref) => {
-  // Ensure children is not undefined or null
-  const safeChildren = React.Children.count(children) > 0
-    ? children 
-    : <div className="py-6 text-center text-sm">No items available</div>;
-    
+  // Create a fallback element when no children are provided
+  const fallback = <div className="py-6 text-center text-sm">No items available</div>;
+  
+  // Safely check if children exist and have items
+  let safeChildren = null;
+  
+  if (children) {
+    // If children is provided, use it
+    const childCount = React.Children.count(children);
+    safeChildren = childCount > 0 ? children : fallback;
+  } else {
+    // If children is undefined or null, use fallback
+    safeChildren = fallback;
+  }
+  
   return (
     <CommandPrimitive.Group
       ref={ref}

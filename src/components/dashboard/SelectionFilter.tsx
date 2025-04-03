@@ -40,13 +40,25 @@ export function SelectionFilter({
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  // Make sure options is always an array of valid Option objects
-  const safeOptions = Array.isArray(options) 
-    ? options.filter(opt => opt && typeof opt === 'object' && 'value' in opt && 'label' in opt) 
-    : [];
+  // Ensure options is always a valid array of Option objects
+  const safeOptions = React.useMemo(() => {
+    if (!Array.isArray(options)) return [];
     
-  // Make sure selected is always an array 
-  const safeSelected = Array.isArray(selected) ? selected : [];
+    return options.filter(opt => 
+      opt && 
+      typeof opt === 'object' && 
+      'value' in opt && 
+      typeof opt.value === 'string' &&
+      'label' in opt &&
+      typeof opt.label === 'string'
+    );
+  }, [options]);
+  
+  // Ensure selected is always a valid array of strings
+  const safeSelected = React.useMemo(() => {
+    if (!Array.isArray(selected)) return [];
+    return selected.filter(value => typeof value === 'string');
+  }, [selected]);
 
   const handleSelect = (value: string) => {
     if (safeSelected.includes(value)) {
@@ -122,7 +134,7 @@ export function SelectionFilter({
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[250px] z-[999]" align="start">
+        <PopoverContent className="p-0 w-[250px] z-[1000]" align="start">
           {isLoading ? (
             <div className="p-4 text-center">
               <span className="text-sm text-muted-foreground">Loading...</span>
@@ -131,31 +143,25 @@ export function SelectionFilter({
             <Command>
               <CommandInput placeholder={`Search ${title.toLowerCase()}...`} />
               <CommandEmpty>No {title.toLowerCase()} found.</CommandEmpty>
-              {safeOptions && safeOptions.length > 0 ? (
-                <CommandGroup className="max-h-64 overflow-auto">
-                  {safeOptions.map((option, index) => option && (
-                    <CommandItem
-                      key={option.value || `option-${index}`}
-                      value={option.value}
-                      onSelect={() => handleSelect(option.value)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          safeSelected.includes(option.value)
-                            ? "opacity-100"
-                            : "opacity-0"
-                        )}
-                      />
-                      {option.label}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              ) : (
-                <div className="py-6 text-center text-sm">
-                  No {title.toLowerCase()} available
-                </div>
-              )}
+              <CommandGroup className="max-h-64 overflow-auto">
+                {safeOptions.map((option, index) => (
+                  <CommandItem
+                    key={`${option.value || index}`}
+                    value={option.value}
+                    onSelect={() => handleSelect(option.value)}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        safeSelected.includes(option.value)
+                          ? "opacity-100"
+                          : "opacity-0"
+                      )}
+                    />
+                    {option.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
             </Command>
           )}
         </PopoverContent>
