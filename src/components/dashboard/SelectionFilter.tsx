@@ -58,8 +58,12 @@ export function SelectionFilter({
   };
 
   const getSelectedLabels = () => {
+    if (!Array.isArray(safeSelected) || !Array.isArray(safeOptions)) {
+      return [];
+    }
+    
     return safeSelected.map((value) => {
-      const option = safeOptions.find((opt) => opt.value === value);
+      const option = safeOptions.find((opt) => opt && opt.value === value);
       return option ? option.label : value;
     });
   };
@@ -74,7 +78,7 @@ export function SelectionFilter({
   }, []);
 
   // Fallback for empty options to prevent cmdk issues
-  if (safeOptions.length === 0) {
+  if (!Array.isArray(safeOptions) || safeOptions.length === 0) {
     return (
       <div className={cn("flex flex-col", className)}>
         <Button
@@ -107,7 +111,7 @@ export function SelectionFilter({
               {isCountryFilter && <Globe className="mr-2 h-4 w-4 text-muted-foreground" />}
               <span className="mr-2 truncate">{title}</span>
             </div>
-            {safeSelected.length > 0 && (
+            {safeSelected && safeSelected.length > 0 && (
               <Badge variant="outline" className="mr-2">
                 {safeSelected.length}
               </Badge>
@@ -115,7 +119,7 @@ export function SelectionFilter({
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[250px] z-50" align="start">
+        <PopoverContent className="p-0 w-[250px] z-[999]" align="start">
           {isLoading ? (
             <div className="p-4 text-center">
               <span className="text-sm text-muted-foreground">Loading...</span>
@@ -150,7 +154,7 @@ export function SelectionFilter({
         </PopoverContent>
       </Popover>
 
-      {safeSelected.length > 0 && (
+      {safeSelected && safeSelected.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-2">
           {getSelectedLabels().map((label, index) => (
             <Badge
