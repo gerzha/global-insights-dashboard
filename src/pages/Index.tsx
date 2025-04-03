@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/AppSidebar";
@@ -6,7 +5,8 @@ import { FilterBar } from "@/components/dashboard/FilterBar";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { SelectionFilter, Option } from "@/components/dashboard/SelectionFilter";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
-import { Users, DollarSign, TrendingUp } from "lucide-react";
+import { TopItemsList } from "@/components/dashboard/TopItemsList";
+import { Users, DollarSign, TrendingUp, Globe } from "lucide-react";
 import { format } from "date-fns";
 import { 
   mockTransactions, 
@@ -154,9 +154,36 @@ const Dashboard = () => {
                 <StatCard
                   title="Average Transaction"
                   value={formatCurrency(globalStats?.avgAmount || 0)}
-                  subtext={getTierText(globalStats?.avgAmount || 0)}
+                  subtext={`${getTierText(globalStats?.avgAmount || 0)} (in USD)`}
                   icon={TrendingUp}
                 />
+              </div>
+              
+              {/* Top Countries Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {globalStats?.topCountriesByAmount && (
+                  <TopItemsList
+                    title="Top 3 Countries by Total Amount"
+                    items={globalStats.topCountriesByAmount.map(country => ({
+                      name: country.name,
+                      code: country.code,
+                      value: formatCurrency(country.amount)
+                    }))}
+                    className="h-full"
+                  />
+                )}
+                
+                {globalStats?.topCountriesByTransactions && (
+                  <TopItemsList
+                    title="Top 3 Countries by Transactions"
+                    items={globalStats.topCountriesByTransactions.map(country => ({
+                      name: country.name,
+                      code: country.code,
+                      value: country.count.toLocaleString()
+                    }))}
+                    className="h-full"
+                  />
+                )}
               </div>
               
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
