@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,6 +80,9 @@ export function SelectionFilter({
     );
   }
 
+  // Determine if this is a country filter by title
+  const isCountryFilter = title.toLowerCase() === "countries";
+
   return (
     <div className={cn("flex flex-col", className)}>
       <Popover open={open} onOpenChange={setOpen}>
@@ -90,7 +93,10 @@ export function SelectionFilter({
             aria-expanded={open}
             className="justify-between min-h-10"
           >
-            <span className="mr-2 truncate">{title}</span>
+            <div className="flex items-center">
+              {isCountryFilter && <Globe className="mr-2 h-4 w-4 text-muted-foreground" />}
+              <span className="mr-2 truncate">{title}</span>
+            </div>
             {safeSelected.length > 0 && (
               <Badge variant="outline" className="mr-2">
                 {safeSelected.length}

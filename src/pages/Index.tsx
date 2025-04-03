@@ -6,10 +6,10 @@ import { FilterBar } from "@/components/dashboard/FilterBar";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { SelectionFilter, Option } from "@/components/dashboard/SelectionFilter";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
-import { Users, DollarSign, TrendingUp } from "lucide-react";
+import { Users, DollarSign, TrendingUp, Globe } from "lucide-react";
 import { 
   mockTransactions, 
-  mockCountries,
+  countriesList,
   mockProducts 
 } from "@/data/mockData";
 import { 
@@ -47,6 +47,12 @@ const productOptions: Option[] = [
   { value: "prod10", label: "PUBG Mobile UC" },
 ];
 
+// Convert the countries list to options format
+const countryOptions: Option[] = countriesList.map(country => ({
+  value: country.code,
+  label: country.name
+}));
+
 const Dashboard = () => {
   const [dateRange, setDateRange] = useState<[Date, Date]>(getDefaultDateRange());
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -69,12 +75,6 @@ const Dashboard = () => {
     selectedCountries.length > 0 ? selectedCountries : undefined,
     selectedStores.length > 0 ? selectedStores : undefined
   );
-
-  // Format the options for country selection filters
-  const countryOptions = mockCountries.map(country => ({
-    value: country.code,
-    label: country.name
-  }));
 
   const handleDateChange = (range: { from: Date; to: Date }) => {
     setDateRange([range.from, range.to]);
@@ -131,6 +131,7 @@ const Dashboard = () => {
                     options={countryOptions}
                     selected={selectedCountries}
                     onSelectionChange={setSelectedCountries}
+                    className="countries-filter"
                   />
                   <SelectionFilter
                     title="Stores"

@@ -29,17 +29,44 @@ export interface Product {
   name: string;
 }
 
+// List of countries for the country filter
+export const countriesList: Country[] = [
+  { code: 'US', name: 'United States' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'UK', name: 'United Kingdom' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'BR', name: 'Brazil' },
+  { code: 'CN', name: 'China' },
+  { code: 'IN', name: 'India' },
+  { code: 'RU', name: 'Russia' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'MX', name: 'Mexico' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'KR', name: 'South Korea' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'CH', name: 'Switzerland' },
+  { code: 'ZA', name: 'South Africa' },
+  { code: 'SG', name: 'Singapore' },
+  { code: 'AE', name: 'United Arab Emirates' },
+  { code: 'AR', name: 'Argentina' },
+  { code: 'IE', name: 'Ireland' },
+  { code: 'TH', name: 'Thailand' },
+  { code: 'PL', name: 'Poland' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'FI', name: 'Finland' },
+  { code: 'PT', name: 'Portugal' },
+  { code: 'NZ', name: 'New Zealand' },
+  { code: 'IL', name: 'Israel' }
+];
+
 // Helper function to generate random transactions
 const generateTransactions = (count: number): Transaction[] => {
-  const countries: Country[] = [
-    { code: 'US', name: 'United States' },
-    { code: 'CA', name: 'Canada' },
-    { code: 'UK', name: 'United Kingdom' },
-    { code: 'DE', name: 'Germany' },
-    { code: 'FR', name: 'France' },
-    { code: 'JP', name: 'Japan' },
-    { code: 'AU', name: 'Australia' },
-  ];
+  // Use the countries from our countriesList for consistency
+  const countries = countriesList;
 
   const stores: Store[] = [
     { id: 'store-1', name: 'Online Store' },
