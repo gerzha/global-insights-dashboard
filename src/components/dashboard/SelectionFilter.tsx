@@ -38,6 +38,7 @@ export function SelectionFilter({
   className,
 }: SelectionFilterProps) {
   const [open, setOpen] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   // Make sure options is always an array
   const safeOptions = Array.isArray(options) ? options : [];
@@ -62,6 +63,15 @@ export function SelectionFilter({
       return option ? option.label : value;
     });
   };
+
+  // Simulate a brief loading state for the component
+  React.useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Fallback for empty options to prevent cmdk issues
   if (safeOptions.length === 0) {
@@ -105,30 +115,38 @@ export function SelectionFilter({
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[250px]" align="start">
-          <Command>
-            <CommandInput placeholder={`Search ${title.toLowerCase()}...`} />
-            <CommandEmpty>No {title.toLowerCase()} found.</CommandEmpty>
-            <CommandGroup className="max-h-64 overflow-auto">
-              {safeOptions.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  onSelect={() => handleSelect(option.value)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      safeSelected.includes(option.value)
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
-                  />
-                  {option.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
+        <PopoverContent className="p-0 w-[250px] z-50" align="start">
+          {isLoading ? (
+            <div className="p-4 text-center">
+              <span className="text-sm text-muted-foreground">Loading...</span>
+            </div>
+          ) : (
+            <Command>
+              <CommandInput placeholder={`Search ${title.toLowerCase()}...`} />
+              <CommandEmpty>No {title.toLowerCase()} found.</CommandEmpty>
+              {safeOptions && safeOptions.length > 0 && (
+                <CommandGroup className="max-h-64 overflow-auto">
+                  {safeOptions.map((option) => (
+                    <CommandItem
+                      key={option.value}
+                      value={option.value}
+                      onSelect={() => handleSelect(option.value)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          safeSelected.includes(option.value)
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                      {option.label}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+            </Command>
+          )}
         </PopoverContent>
       </Popover>
 

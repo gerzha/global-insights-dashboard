@@ -1,12 +1,12 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/AppSidebar";
 import { FilterBar } from "@/components/dashboard/FilterBar";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { SelectionFilter, Option } from "@/components/dashboard/SelectionFilter";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
-import { Users, DollarSign, TrendingUp, Globe } from "lucide-react";
+import { Users, DollarSign, TrendingUp } from "lucide-react";
 import { 
   mockTransactions, 
   countriesList,
@@ -22,32 +22,41 @@ import {
 } from "@/utils/dashboardUtils";
 
 // Define store options based on mockStores data for consistency
-const storeOptions: Option[] = mockStores.map(store => ({
+const storeOptions: Option[] = mockStores ? mockStores.map(store => ({
   value: store.id,
   label: store.name
-}));
+})) : [];
 
 // Define product options based on mockProducts data for consistency
-const productOptions: Option[] = mockProducts.map(product => ({
+const productOptions: Option[] = mockProducts ? mockProducts.map(product => ({
   value: product.id,
   label: product.name
-}));
+})) : [];
 
 // Convert the countries list to options format
-const countryOptions: Option[] = countriesList.map(country => ({
+const countryOptions: Option[] = countriesList ? countriesList.map(country => ({
   value: country.code,
   label: country.name
-}));
+})) : [];
 
 const Dashboard = () => {
   const [dateRange, setDateRange] = useState<[Date, Date]>(getDefaultDateRange());
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedStores, setSelectedStores] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading data
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Calculate global stats
   const globalStats = calculateGlobalStats(
-    mockTransactions,
+    mockTransactions || [],
     dateRange,
     selectedCountries,
     selectedStores
@@ -55,7 +64,7 @@ const Dashboard = () => {
 
   // Calculate product revenue data for chart
   const productRevenueData = calculateProductStats(
-    mockTransactions,
+    mockTransactions || [],
     dateRange,
     selectedProducts.length > 0 ? selectedProducts : undefined,
     selectedCountries.length > 0 ? selectedCountries : undefined,
@@ -65,6 +74,17 @@ const Dashboard = () => {
   const handleDateChange = (range: { from: Date; to: Date }) => {
     setDateRange([range.from, range.to]);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-700">Loading dashboard data...</h2>
+          <p className="text-gray-500 mt-2">Please wait while we prepare your insights</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -112,25 +132,31 @@ const Dashboard = () => {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
                 <h3 className="text-sm font-medium text-gray-500 mb-4">Filters</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <SelectionFilter
-                    title="Countries"
-                    options={countryOptions}
-                    selected={selectedCountries}
-                    onSelectionChange={setSelectedCountries}
-                    className="countries-filter"
-                  />
-                  <SelectionFilter
-                    title="Stores"
-                    options={storeOptions}
-                    selected={selectedStores}
-                    onSelectionChange={setSelectedStores}
-                  />
-                  <SelectionFilter
-                    title="Products"
-                    options={productOptions}
-                    selected={selectedProducts}
-                    onSelectionChange={setSelectedProducts}
-                  />
+                  {countryOptions && countryOptions.length > 0 && (
+                    <SelectionFilter
+                      title="Countries"
+                      options={countryOptions}
+                      selected={selectedCountries}
+                      onSelectionChange={setSelectedCountries}
+                      className="countries-filter"
+                    />
+                  )}
+                  {storeOptions && storeOptions.length > 0 && (
+                    <SelectionFilter
+                      title="Stores"
+                      options={storeOptions}
+                      selected={selectedStores}
+                      onSelectionChange={setSelectedStores}
+                    />
+                  )}
+                  {productOptions && productOptions.length > 0 && (
+                    <SelectionFilter
+                      title="Products"
+                      options={productOptions}
+                      selected={selectedProducts}
+                      onSelectionChange={setSelectedProducts}
+                    />
+                  )}
                 </div>
               </div>
               
