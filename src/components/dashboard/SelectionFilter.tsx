@@ -32,12 +32,15 @@ interface SelectionFilterProps {
 
 export function SelectionFilter({
   title,
-  options,
-  selected,
+  options = [],  // Ensure options is never undefined
+  selected = [], // Ensure selected is never undefined
   onSelectionChange,
   className,
 }: SelectionFilterProps) {
   const [open, setOpen] = React.useState(false);
+
+  // Make sure options is always an array
+  const safeOptions = Array.isArray(options) ? options : [];
 
   const handleSelect = (value: string) => {
     if (selected.includes(value)) {
@@ -53,7 +56,7 @@ export function SelectionFilter({
 
   const getSelectedLabels = () => {
     return selected.map((value) => {
-      const option = options.find((opt) => opt.value === value);
+      const option = safeOptions.find((opt) => opt.value === value);
       return option ? option.label : value;
     });
   };
@@ -82,7 +85,7 @@ export function SelectionFilter({
             <CommandInput placeholder={`Search ${title.toLowerCase()}...`} />
             <CommandEmpty>No {title.toLowerCase()} found.</CommandEmpty>
             <CommandGroup className="max-h-64 overflow-auto">
-              {options.map((option) => (
+              {safeOptions.map((option) => (
                 <CommandItem
                   key={option.value}
                   value={option.value}
