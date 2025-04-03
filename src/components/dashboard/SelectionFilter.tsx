@@ -128,9 +128,9 @@ export function SelectionFilter({
             <Command>
               <CommandInput placeholder={`Search ${title.toLowerCase()}...`} />
               <CommandEmpty>No {title.toLowerCase()} found.</CommandEmpty>
-              {safeOptions && safeOptions.length > 0 && (
+              {safeOptions && safeOptions.length > 0 ? (
                 <CommandGroup className="max-h-64 overflow-auto">
-                  {safeOptions.map((option) => (
+                  {safeOptions.map((option) => option && (
                     <CommandItem
                       key={option.value}
                       value={option.value}
@@ -148,6 +148,10 @@ export function SelectionFilter({
                     </CommandItem>
                   ))}
                 </CommandGroup>
+              ) : (
+                <div className="py-6 text-center text-sm">
+                  No {title.toLowerCase()} available
+                </div>
               )}
             </Command>
           )}
