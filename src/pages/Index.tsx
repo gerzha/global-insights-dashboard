@@ -7,6 +7,7 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { SelectionFilter, Option } from "@/components/dashboard/SelectionFilter";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { Users, DollarSign, TrendingUp } from "lucide-react";
+import { format } from "date-fns";
 import { 
   mockTransactions, 
   countriesList,
@@ -40,11 +41,28 @@ const countryOptions: Option[] = countriesList ? countriesList.map(country => ({
 })) : [];
 
 const Dashboard = () => {
-  const [dateRange, setDateRange] = useState<[Date, Date]>(getDefaultDateRange());
+  // Date range state
+  const [startDate, setStartDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 30);
+    return date;
+  });
+  const [endDate, setEndDate] = useState(new Date());
+
+  // Filter states
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedStores, setSelectedStores] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+
+  // Data states
+  const [globalStats, setGlobalStats] = useState<any>(null);
+  const [countriesStats, setCountriesStats] = useState<any>(null);
+  const [storesStats, setStoresStats] = useState<any>(null);
+  const [revenueData, setRevenueData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Format dates for API calls
+  const formatDateForApi = (date: Date) => format(date, "yyyy-MM-dd");
 
   // Simulate loading data
   useEffect(() => {
@@ -54,25 +72,37 @@ const Dashboard = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Calculate global stats
-  const globalStats = calculateGlobalStats(
-    mockTransactions || [],
-    dateRange,
-    selectedCountries,
-    selectedStores
-  );
+  // Update global stats when date range changes
+  useEffect(() => {
+    const formattedStartDate = formatDateForApi(startDate);
+    const formattedEndDate = formatDateForApi(endDate);
+    
+    // Calculate global stats from mock data
+    const stats = calculateGlobalStats(
+      mockTransactions || [],
+      [startDate, endDate],
+      selectedCountries,
+      selectedStores
+    );
+    setGlobalStats(stats);
+  }, [startDate, endDate, selectedCountries, selectedStores]);
 
-  // Calculate product revenue data for chart
-  const productRevenueData = calculateProductStats(
-    mockTransactions || [],
-    dateRange,
-    selectedProducts.length > 0 ? selectedProducts : undefined,
-    selectedCountries.length > 0 ? selectedCountries : undefined,
-    selectedStores.length > 0 ? selectedStores : undefined
-  );
+  // Update revenue data when selected products, countries, stores, or date range changes
+  useEffect(() => {
+    const data = calculateProductStats(
+      mockTransactions || [],
+      [startDate, endDate],
+      selectedProducts.length > 0 ? selectedProducts : undefined,
+      selectedCountries.length > 0 ? selectedCountries : undefined,
+      selectedStores.length > 0 ? selectedStores : undefined
+    );
+    
+    setRevenueData(data);
+  }, [selectedProducts, selectedCountries, selectedStores, startDate, endDate]);
 
   const handleDateChange = (range: { from: Date; to: Date }) => {
-    setDateRange([range.from, range.to]);
+    setStartDate(range.from);
+    setEndDate(range.to);
   };
 
   if (isLoading) {
@@ -101,8 +131,8 @@ const Dashboard = () => {
           <main className="flex-1 overflow-auto p-4 lg:p-6">
             <div className="container max-w-7xl mx-auto">
               <FilterBar 
-                startDate={dateRange[0]} 
-                endDate={dateRange[1]} 
+                startDate={startDate} 
+                endDate={endDate} 
                 onDateChange={handleDateChange} 
                 className="mb-6"
               />
@@ -110,21 +140,21 @@ const Dashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <StatCard
                   title="Total Transactions"
-                  value={globalStats.totalTransactions.toLocaleString()}
+                  value={globalStats?.totalTransactions.toLocaleString() || "0"}
                   icon={Users}
                   variant="primary"
                 />
                 <StatCard
                   title="Total Amount"
-                  value={formatCurrency(globalStats.totalAmount)}
-                  subtext={getTierText(globalStats.totalAmount)}
+                  value={formatCurrency(globalStats?.totalAmount || 0)}
+                  subtext={getTierText(globalStats?.totalAmount || 0)}
                   icon={DollarSign}
                   variant="success"
                 />
                 <StatCard
                   title="Average Transaction"
-                  value={formatCurrency(globalStats.avgAmount)}
-                  subtext={getTierText(globalStats.avgAmount)}
+                  value={formatCurrency(globalStats?.avgAmount || 0)}
+                  subtext={getTierText(globalStats?.avgAmount || 0)}
                   icon={TrendingUp}
                 />
               </div>
@@ -162,7 +192,7 @@ const Dashboard = () => {
               
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
                 <RevenueChart 
-                  data={productRevenueData} 
+                  data={revenueData} 
                   title="Revenue Over Time"
                 />
               </div>
