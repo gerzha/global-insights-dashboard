@@ -10,7 +10,8 @@ import { Users, DollarSign, TrendingUp, Globe } from "lucide-react";
 import { 
   mockTransactions, 
   countriesList,
-  mockProducts 
+  mockProducts,
+  mockStores 
 } from "@/data/mockData";
 import { 
   calculateGlobalStats, 
@@ -20,32 +21,17 @@ import {
   getTierText 
 } from "@/utils/dashboardUtils";
 
-// Define store options
-const storeOptions: Option[] = [
-  { value: "netease", label: "NetEase" },
-  { value: "flexion", label: "Flexion" },
-  { value: "microsoft", label: "Microsoft" },
-  { value: "apple_ios", label: "Apple iOS" },
-  { value: "apple_macos", label: "Apple macOS" },
-  { value: "google", label: "Google Play" },
-  { value: "steam", label: "Steam" },
-  { value: "steam_dlc", label: "Steam DLC" },
-  { value: "nintendo", label: "Nintendo" },
-];
+// Define store options based on mockStores data for consistency
+const storeOptions: Option[] = mockStores.map(store => ({
+  value: store.id,
+  label: store.name
+}));
 
-// Define sample product options
-const productOptions: Option[] = [
-  { value: "prod1", label: "Minecraft" },
-  { value: "prod2", label: "Fortnite V-Bucks" },
-  { value: "prod3", label: "Call of Duty Pack" },
-  { value: "prod4", label: "FIFA 24 Ultimate Team" },
-  { value: "prod5", label: "Roblox Premium" },
-  { value: "prod6", label: "GTA V" },
-  { value: "prod7", label: "Among Us" },
-  { value: "prod8", label: "Clash of Clans Gems" },
-  { value: "prod9", label: "League of Legends RP" },
-  { value: "prod10", label: "PUBG Mobile UC" },
-];
+// Define product options based on mockProducts data for consistency
+const productOptions: Option[] = mockProducts.map(product => ({
+  value: product.id,
+  label: product.name
+}));
 
 // Convert the countries list to options format
 const countryOptions: Option[] = countriesList.map(country => ({
