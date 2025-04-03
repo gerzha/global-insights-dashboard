@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { Globe } from "lucide-react";
+import { Globe, Store, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MultiSelect, Option } from "@/components/ui/multi-select";
 
@@ -32,8 +32,14 @@ export function SelectionFilter({
     return () => clearTimeout(timer);
   }, []);
 
-  // Determine if this is a country filter by title
-  const isCountryFilter = title.toLowerCase() === "countries";
+  // Determine appropriate icon based on filter type
+  const getFilterIcon = () => {
+    const lowerTitle = title.toLowerCase();
+    if (lowerTitle === "countries") return <Globe className="h-4 w-4 text-muted-foreground" />;
+    if (lowerTitle === "stores") return <Store className="h-4 w-4 text-muted-foreground" />;
+    if (lowerTitle === "products") return <ShoppingBag className="h-4 w-4 text-muted-foreground" />;
+    return undefined;
+  };
 
   if (isLoading) {
     return (
@@ -43,15 +49,18 @@ export function SelectionFilter({
     );
   }
 
+  // Make sure options is never undefined or null
+  const safeOptions = Array.isArray(options) ? options : [];
+
   return (
     <div className={cn("flex flex-col", className)}>
       <MultiSelect
-        options={options}
+        options={safeOptions}
         selected={selected}
         onChange={onSelectionChange}
         placeholder={title}
         className="w-full"
-        icon={isCountryFilter ? <Globe className="h-4 w-4 text-muted-foreground" /> : undefined}
+        icon={getFilterIcon()}
       />
     </div>
   );

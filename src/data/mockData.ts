@@ -1,3 +1,4 @@
+
 import { format, subDays } from 'date-fns';
 
 // Types
@@ -57,21 +58,24 @@ const generateTransactions = (count: number): Transaction[] => {
   // Use the countries from our countriesList for consistency
   const countries = countriesList;
 
+  // Updated store list with the requested stores
   const stores: Store[] = [
-    { id: 'store-1', name: 'Online Store' },
-    { id: 'store-2', name: 'Mobile App' },
-    { id: 'store-3', name: 'Retail Location A' },
-    { id: 'store-4', name: 'Retail Location B' },
-    { id: 'store-5', name: 'Marketplace' },
+    { id: 'steam', name: 'Steam' },
+    { id: 'flexion', name: 'Flexion' },
+    { id: 'apple_ios', name: 'Apple iOS' },
+    { id: 'apple_macos', name: 'Apple macOS' },
+    { id: 'google', name: 'Google' },
+    { id: 'nintendo', name: 'Nintendo' },
   ];
 
+  // Updated products with random IDs
   const products: Product[] = [
-    { id: 'product-1', name: 'Premium Subscription' },
-    { id: 'product-2', name: 'Basic Subscription' },
-    { id: 'product-3', name: 'Digital Download' },
-    { id: 'product-4', name: 'Physical Product A' },
-    { id: 'product-5', name: 'Physical Product B' },
-    { id: 'product-6', name: 'Service Package' },
+    { id: 'prod_1a2b3c4d5e', name: 'Premium Subscription' },
+    { id: 'prod_2e3f4g5h6i', name: 'Basic Subscription' },
+    { id: 'prod_3i4j5k6l7m', name: 'Digital Download' },
+    { id: 'prod_4m5n6o7p8q', name: 'Physical Product A' },
+    { id: 'prod_5q6r7s8t9u', name: 'Physical Product B' },
+    { id: 'prod_6u7v8w9x0y', name: 'Service Package' },
   ];
 
   const transactions: Transaction[] = [];
