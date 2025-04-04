@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/AppSidebar";
@@ -7,6 +8,7 @@ import { SelectionFilter, Option } from "@/components/dashboard/SelectionFilter"
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { TopItemsList } from "@/components/dashboard/TopItemsList";
 import { FilteredStats } from "@/components/dashboard/FilteredStats";
+import { ComparisonChart } from "@/components/dashboard/ComparisonChart";
 import { Users, DollarSign, TrendingUp, Globe } from "lucide-react";
 import { format } from "date-fns";
 import { 
@@ -20,6 +22,7 @@ import {
   calculateProductStats,
   calculateCountryStats,
   calculateStoreStats,
+  calculateComparisonStats,
   getDefaultDateRange, 
   formatCurrency, 
   getTierText 
@@ -62,6 +65,7 @@ const Dashboard = () => {
   const [countriesStats, setCountriesStats] = useState<any>(null);
   const [storesStats, setStoresStats] = useState<any>(null);
   const [revenueData, setRevenueData] = useState<any[]>([]);
+  const [comparisonData, setComparisonData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Format dates for API calls
@@ -121,6 +125,20 @@ const Dashboard = () => {
     );
     
     setRevenueData(data);
+  }, [selectedProducts, selectedCountries, selectedStores, startDate, endDate]);
+
+  // Update comparison data
+  useEffect(() => {
+    const productComparisonData = calculateComparisonStats(
+      mockTransactions || [],
+      [startDate, endDate],
+      "products",
+      selectedProducts.length > 0 ? selectedProducts : undefined,
+      selectedCountries.length > 0 ? selectedCountries : undefined,
+      selectedStores.length > 0 ? selectedStores : undefined
+    );
+    
+    setComparisonData(productComparisonData);
   }, [selectedProducts, selectedCountries, selectedStores, startDate, endDate]);
 
   const handleDateChange = (range: { from: Date; to: Date }) => {
@@ -254,11 +272,21 @@ const Dashboard = () => {
                 className="mb-6"
               />
               
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-                <RevenueChart 
-                  data={revenueData} 
-                  title="Revenue Over Time"
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                  <RevenueChart 
+                    data={revenueData} 
+                    title="Revenue Over Time"
+                  />
+                </div>
+                
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                  <ComparisonChart
+                    data={comparisonData}
+                    title="Revenue Comparison"
+                    comparisonType="products"
+                  />
+                </div>
               </div>
             </div>
           </main>

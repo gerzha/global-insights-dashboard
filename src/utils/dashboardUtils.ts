@@ -222,6 +222,147 @@ export function calculateProductStats(
   return revenueByDay;
 }
 
+export function calculateComparisonStats(
+  transactions: Transaction[],
+  dateRange: [Date, Date],
+  comparisonType: "products" | "countries" | "stores",
+  selectedProductIds: string[] = [],
+  selectedCountries: string[] = [],
+  selectedStores: string[] = []
+) {
+  // Filter transactions by date range
+  let filteredTransactions = transactions.filter((transaction) => {
+    const transactionDate = parseISO(transaction.date);
+    return (
+      isAfter(transactionDate, dateRange[0]) &&
+      isBefore(transactionDate, dateRange[1])
+    );
+  });
+
+  // Apply filters based on selections
+  if (selectedProductIds.length > 0) {
+    filteredTransactions = filteredTransactions.filter((transaction) =>
+      selectedProductIds.includes(transaction.productId)
+    );
+  }
+
+  if (selectedCountries.length > 0) {
+    filteredTransactions = filteredTransactions.filter((transaction) =>
+      selectedCountries.includes(transaction.countryCode)
+    );
+  }
+
+  if (selectedStores.length > 0) {
+    filteredTransactions = filteredTransactions.filter((transaction) =>
+      selectedStores.includes(transaction.storeId)
+    );
+  }
+
+  // Get unique dates in the range
+  const startDate = new Date(dateRange[0]);
+  const endDate = new Date(dateRange[1]);
+  const currentDate = new Date(startDate);
+  const allDates: string[] = [];
+  
+  while (currentDate <= endDate) {
+    allDates.push(format(currentDate, 'yyyy-MM-dd'));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  // Determine which entities to track based on comparison type
+  let comparisonData: any[] = [];
+
+  if (comparisonType === "products") {
+    // Group transactions by product
+    const productTransactions = new Map<string, Map<string, number>>();
+    
+    filteredTransactions.forEach(transaction => {
+      if (!productTransactions.has(transaction.productId)) {
+        productTransactions.set(transaction.productId, new Map<string, number>());
+      }
+      
+      const productMap = productTransactions.get(transaction.productId)!;
+      const currentAmount = productMap.get(transaction.date) || 0;
+      productMap.set(transaction.date, currentAmount + transaction.amount);
+    });
+    
+    // Create data points for each product and date
+    productTransactions.forEach((dateMap, productId) => {
+      const product = transactions.find(t => t.productId === productId);
+      const productName = product?.productName || productId;
+      
+      allDates.forEach(date => {
+        comparisonData.push({
+          date,
+          id: productId,
+          name: productName,
+          value: dateMap.get(date) || 0
+        });
+      });
+    });
+  } 
+  else if (comparisonType === "countries") {
+    // Group transactions by country
+    const countryTransactions = new Map<string, Map<string, number>>();
+    
+    filteredTransactions.forEach(transaction => {
+      if (!countryTransactions.has(transaction.countryCode)) {
+        countryTransactions.set(transaction.countryCode, new Map<string, number>());
+      }
+      
+      const countryMap = countryTransactions.get(transaction.countryCode)!;
+      const currentAmount = countryMap.get(transaction.date) || 0;
+      countryMap.set(transaction.date, currentAmount + transaction.amount);
+    });
+    
+    // Create data points for each country and date
+    countryTransactions.forEach((dateMap, countryCode) => {
+      const country = transactions.find(t => t.countryCode === countryCode);
+      const countryName = country?.countryName || countryCode;
+      
+      allDates.forEach(date => {
+        comparisonData.push({
+          date,
+          id: countryCode,
+          name: countryName,
+          value: dateMap.get(date) || 0
+        });
+      });
+    });
+  } 
+  else if (comparisonType === "stores") {
+    // Group transactions by store
+    const storeTransactions = new Map<string, Map<string, number>>();
+    
+    filteredTransactions.forEach(transaction => {
+      if (!storeTransactions.has(transaction.storeId)) {
+        storeTransactions.set(transaction.storeId, new Map<string, number>());
+      }
+      
+      const storeMap = storeTransactions.get(transaction.storeId)!;
+      const currentAmount = storeMap.get(transaction.date) || 0;
+      storeMap.set(transaction.date, currentAmount + transaction.amount);
+    });
+    
+    // Create data points for each store and date
+    storeTransactions.forEach((dateMap, storeId) => {
+      const store = transactions.find(t => t.storeId === storeId);
+      const storeName = store?.storeName || storeId;
+      
+      allDates.forEach(date => {
+        comparisonData.push({
+          date,
+          id: storeId,
+          name: storeName,
+          value: dateMap.get(date) || 0
+        });
+      });
+    });
+  }
+  
+  return comparisonData;
+}
+
 export function getDefaultDateRange(): [Date, Date] {
   const endDate = new Date();
   const startDate = subDays(endDate, 30);

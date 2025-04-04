@@ -1,8 +1,7 @@
 
 import React from "react";
-import { Calendar, Search } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -67,77 +66,61 @@ export function FilterBar({
         className
       )}
     >
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="search" className="text-sm">
-            Search
-          </Label>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-            <Input
-              id="search"
-              placeholder="Search..."
-              className="pl-8 w-64"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm">Date Range</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "justify-start text-left font-normal w-64",
-                  !date && "text-muted-foreground"
-                )}
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                {date?.from ? (
-                  date.to ? (
-                    <>
-                      {format(date.from, "MMM d, yyyy")} -{" "}
-                      {format(date.to, "MMM d, yyyy")}
-                    </>
-                  ) : (
-                    format(date.from, "MMM d, yyyy")
-                  )
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-sm">Date Range</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "justify-start text-left font-normal w-64",
+                !date && "text-muted-foreground"
+              )}
+            >
+              <Calendar className="mr-2 h-4 w-4" />
+              {date?.from ? (
+                date.to ? (
+                  <>
+                    {format(date.from, "MMM d, yyyy")} -{" "}
+                    {format(date.to, "MMM d, yyyy")}
+                  </>
                 ) : (
-                  <span>Pick a date range</span>
-                )}
+                  format(date.from, "MMM d, yyyy")
+                )
+              ) : (
+                <span>Pick a date range</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <CalendarComponent
+              mode="range"
+              defaultMonth={date?.from}
+              selected={{
+                from: date?.from,
+                to: date?.to,
+              }}
+              onSelect={(selectedDate) => {
+                if (selectedDate?.from) {
+                  handleDateSelect(selectedDate.from);
+                }
+                if (selectedDate?.to) {
+                  handleDateSelect(selectedDate.to);
+                }
+              }}
+              numberOfMonths={2}
+            />
+            <div className="p-3 border-t border-border">
+              <Button
+                size="sm"
+                className="w-full"
+                onClick={handleDateRangeApply}
+              >
+                Apply
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <CalendarComponent
-                mode="range"
-                defaultMonth={date?.from}
-                selected={{
-                  from: date?.from,
-                  to: date?.to,
-                }}
-                onSelect={(selectedDate) => {
-                  if (selectedDate?.from) {
-                    handleDateSelect(selectedDate.from);
-                  }
-                  if (selectedDate?.to) {
-                    handleDateSelect(selectedDate.to);
-                  }
-                }}
-                numberOfMonths={2}
-              />
-              <div className="p-3 border-t border-border">
-                <Button
-                  size="sm"
-                  className="w-full"
-                  onClick={handleDateRangeApply}
-                >
-                  Apply
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
       
       <Button className="bg-jira-blue hover:bg-jira-blue-darker">
