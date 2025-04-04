@@ -44,7 +44,7 @@ export function RevenueChart({ data, title, className }: RevenueChartProps) {
   };
 
   return (
-    <div className={`bg-white p-4 shadow-sm border border-gray-200 rounded-lg ${className}`}>
+    <div className={`${className}`}>
       <h3 className="text-sm font-medium text-gray-500 mb-4">{title}</h3>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">

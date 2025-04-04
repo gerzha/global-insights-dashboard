@@ -9,7 +9,7 @@ import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { TopItemsList } from "@/components/dashboard/TopItemsList";
 import { FilteredStats } from "@/components/dashboard/FilteredStats";
 import { ComparisonChart } from "@/components/dashboard/ComparisonChart";
-import { Users, DollarSign, TrendingUp, Globe } from "lucide-react";
+import { Users, DollarSign, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { 
   mockTransactions, 
@@ -23,7 +23,6 @@ import {
   calculateCountryStats,
   calculateStoreStats,
   calculateComparisonStats,
-  getDefaultDateRange, 
   formatCurrency, 
   getTierText 
 } from "@/utils/dashboardUtils";
@@ -59,6 +58,7 @@ const Dashboard = () => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedStores, setSelectedStores] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [comparisonType, setComparisonType] = useState<"products" | "countries" | "stores">("products");
 
   // Data states
   const [globalStats, setGlobalStats] = useState<any>(null);
@@ -127,23 +127,34 @@ const Dashboard = () => {
     setRevenueData(data);
   }, [selectedProducts, selectedCountries, selectedStores, startDate, endDate]);
 
-  // Update comparison data
+  // Update comparison data based on comparison type and filters
   useEffect(() => {
-    const productComparisonData = calculateComparisonStats(
+    // For products comparison, use selected products if any, otherwise show all
+    // For countries comparison, use selected countries if any, otherwise show all
+    // For stores comparison, use selected stores if any, otherwise show all
+    let productsFilter = selectedProducts.length > 0 ? selectedProducts : undefined;
+    let countriesFilter = selectedCountries.length > 0 ? selectedCountries : undefined;
+    let storesFilter = selectedStores.length > 0 ? selectedStores : undefined;
+    
+    const comparisonData = calculateComparisonStats(
       mockTransactions || [],
       [startDate, endDate],
-      "products",
-      selectedProducts.length > 0 ? selectedProducts : undefined,
-      selectedCountries.length > 0 ? selectedCountries : undefined,
-      selectedStores.length > 0 ? selectedStores : undefined
+      comparisonType,
+      productsFilter,
+      countriesFilter,
+      storesFilter
     );
     
-    setComparisonData(productComparisonData);
-  }, [selectedProducts, selectedCountries, selectedStores, startDate, endDate]);
+    setComparisonData(comparisonData);
+  }, [comparisonType, selectedProducts, selectedCountries, selectedStores, startDate, endDate]);
 
   const handleDateChange = (range: { from: Date; to: Date }) => {
     setStartDate(range.from);
     setEndDate(range.to);
+  };
+
+  const handleComparisonTypeChange = (type: "products" | "countries" | "stores") => {
+    setComparisonType(type);
   };
 
   if (isLoading) {
@@ -174,7 +185,9 @@ const Dashboard = () => {
               <FilterBar 
                 startDate={startDate} 
                 endDate={endDate} 
-                onDateChange={handleDateChange} 
+                onDateChange={handleDateChange}
+                comparisonType={comparisonType}
+                onComparisonTypeChange={handleComparisonTypeChange}
                 className="mb-6"
               />
               
@@ -283,8 +296,8 @@ const Dashboard = () => {
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                   <ComparisonChart
                     data={comparisonData}
-                    title="Revenue Comparison"
-                    comparisonType="products"
+                    title={`${comparisonType.charAt(0).toUpperCase() + comparisonType.slice(1)} Revenue Comparison`}
+                    comparisonType={comparisonType}
                   />
                 </div>
               </div>

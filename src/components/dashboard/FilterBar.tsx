@@ -11,11 +11,20 @@ import {
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface FilterBarProps {
   startDate: Date;
   endDate: Date;
   onDateChange: (range: { from: Date; to: Date }) => void;
+  comparisonType: "products" | "countries" | "stores";
+  onComparisonTypeChange: (type: "products" | "countries" | "stores") => void;
   className?: string;
 }
 
@@ -23,6 +32,8 @@ export function FilterBar({
   startDate,
   endDate,
   onDateChange,
+  comparisonType,
+  onComparisonTypeChange,
   className,
 }: FilterBarProps) {
   const [date, setDate] = React.useState<{
@@ -66,61 +77,82 @@ export function FilterBar({
         className
       )}
     >
-      <div className="flex flex-col gap-1.5">
-        <Label className="text-sm">Date Range</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "justify-start text-left font-normal w-64",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <Calendar className="mr-2 h-4 w-4" />
-              {date?.from ? (
-                date.to ? (
-                  <>
-                    {format(date.from, "MMM d, yyyy")} -{" "}
-                    {format(date.to, "MMM d, yyyy")}
-                  </>
-                ) : (
-                  format(date.from, "MMM d, yyyy")
-                )
-              ) : (
-                <span>Pick a date range</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <CalendarComponent
-              mode="range"
-              defaultMonth={date?.from}
-              selected={{
-                from: date?.from,
-                to: date?.to,
-              }}
-              onSelect={(selectedDate) => {
-                if (selectedDate?.from) {
-                  handleDateSelect(selectedDate.from);
-                }
-                if (selectedDate?.to) {
-                  handleDateSelect(selectedDate.to);
-                }
-              }}
-              numberOfMonths={2}
-            />
-            <div className="p-3 border-t border-border">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-sm">Date Range</Label>
+          <Popover>
+            <PopoverTrigger asChild>
               <Button
-                size="sm"
-                className="w-full"
-                onClick={handleDateRangeApply}
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal w-64",
+                  !date && "text-muted-foreground"
+                )}
               >
-                Apply
+                <Calendar className="mr-2 h-4 w-4" />
+                {date?.from ? (
+                  date.to ? (
+                    <>
+                      {format(date.from, "MMM d, yyyy")} -{" "}
+                      {format(date.to, "MMM d, yyyy")}
+                    </>
+                  ) : (
+                    format(date.from, "MMM d, yyyy")
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="range"
+                defaultMonth={date?.from}
+                selected={{
+                  from: date?.from,
+                  to: date?.to,
+                }}
+                onSelect={(selectedDate) => {
+                  if (selectedDate?.from) {
+                    handleDateSelect(selectedDate.from);
+                  }
+                  if (selectedDate?.to) {
+                    handleDateSelect(selectedDate.to);
+                  }
+                }}
+                numberOfMonths={2}
+              />
+              <div className="p-3 border-t border-border">
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={handleDateRangeApply}
+                >
+                  Apply
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-sm">Comparison By</Label>
+          <Select 
+            value={comparisonType} 
+            onValueChange={(value) => 
+              onComparisonTypeChange(value as "products" | "countries" | "stores")
+            }
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select comparison type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="products">Products</SelectItem>
+              <SelectItem value="countries">Countries</SelectItem>
+              <SelectItem value="stores">Stores</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       
       <Button className="bg-jira-blue hover:bg-jira-blue-darker">
